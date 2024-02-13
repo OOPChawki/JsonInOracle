@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Fetch and Store JSON</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f7f7f7;
+    }
+    #container {
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        padding: 20px;
+        width: 80%;
+        max-width: 800px;
+    }
+    h1 {
+        color: #333;
+        text-align: center;
+    }
+    .compartment {
+        background-color: #e9e9e9;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        padding: 10px;
+    }
+    label, textarea, button {
+        display: block;
+        width: 100%;
+        margin-top: 10px;
+    }
+    button {
+        background-color: #5cb85c;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #4cae4c;
+    }
+    #successMessage {
+        color: green;
+        margin-top: 20px;
+        text-align: center;
+        display: none; /* Initially hide the message */
+    }
+</style>
+</head>
+<body>
+<div id="container">
+    <h1>Project to Save and Display JSON Objects in Oracle Database</h1>
+    <div id="successMessage">JSON submitted successfully</div> 
+    <div class="compartment">
+        <form id="jsonForm">
+            <label for="jsonInput">Enter JSON Data:</label>
+            <textarea id="jsonInput" rows="5"></textarea>
+            <button type="submit">Submit JSON</button>
+        </form>
+    </div>
+    <div class="compartment">
+        <button id="retrieveButton">Retrieve Data</button>
+        <textarea id="jsonDisplay" rows="10"></textarea>
+    </div>
+</div>
+
+<script>
+ 
+        document.getElementById("jsonForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+ 
+            // Get JSON data from the input field
+            const jsonData = document.getElementById("jsonInput").value;
+ 
+            // Send JSON data to the server
+            fetch("fetch-json", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: jsonData,
+            }).then(response => {
+				 if (response.ok) {
+					  document.getElementById("successMessage").style.display = "block";
+                setTimeout(() => { // Hide the message after 4 seconds
+                    document.getElementById("successMessage").style.display = "none";
+                }, 4000);
+            }
+                return response.text().then(text => {
+                    console.log("Raw response:", text);
+                    return JSON.parse(text);
+                });
+            }).then(data => {
+                document.getElementById("jsonDisplay").value = JSON.stringify(data, null, 4);
+            }).catch(error => {
+                console.error('Error:', error);
+            });
+        });
+ 
+        document.getElementById("retrieveButton").addEventListener("click", function() {
+            // Fetch data from the server
+            fetch("fetch-json", {
+                method: 'GET'
+            }).then(response => {
+                return response.text().then(text => {
+                    console.log("Raw response:", text);
+                    return JSON.parse(text);
+                });
+            }).then(data => {
+                // Display the retrieved JSON data in the textbox
+                document.getElementById("jsonDisplay").value = JSON.stringify(data, null, 4);
+            }).catch(error => {
+                console.error('Error:', error);
+            });
+        });
+</script>
+</body>
+</html>
